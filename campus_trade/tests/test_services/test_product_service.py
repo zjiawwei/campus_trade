@@ -23,7 +23,7 @@ class TestProductService:
     def setup(self, app):
         with app.app_context():
             seller = create_user(
-                "prodseller", "P001", "ps@test.edu.cn", "Pass1234", "广州新港校区"
+                "prodseller", "P001", "Pass1234", "广州新港校区"
             )
             cat = Category(name="电子产品", icon="bi-laptop", sort_order=2)
             db.session.add(cat)

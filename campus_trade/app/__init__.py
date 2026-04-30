@@ -42,16 +42,14 @@ def create_app(config_name=None):
     @app.cli.command("create-admin")
     @click.argument("username")
     @click.argument("student_id")
-    @click.argument("email")
     @click.argument("password")
     @click.argument("campus")
-    def create_admin(username, student_id, email, password, campus):
-        """Create an admin user: flask create-admin <username> <student_id> <email> <password> <campus>"""
+    def create_admin(username, student_id, password, campus):
+        """Create an admin user: flask create-admin <username> <student_id> <password> <campus>"""
         from app.models.user import User
         user = User(
             username=username,
             student_id=student_id,
-            email=email,
             campus=campus,
             role="admin",
         )

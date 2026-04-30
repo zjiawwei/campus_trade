@@ -15,7 +15,6 @@ def register():
         create_user(
             username=form.username.data,
             student_id=form.student_id.data,
-            email=form.email.data,
             password=form.password.data,
             campus=form.campus.data,
             real_name=form.real_name.data or "",

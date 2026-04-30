@@ -1,14 +1,12 @@
 from app.extensions import db
 from app.models.user import User
-from sqlalchemy import or_
 
 
-def create_user(username, student_id, email, password, campus, **kwargs):
+def create_user(username, student_id, password, campus, **kwargs):
     """Create a new user with hashed password. Returns the User object."""
     user = User(
         username=username,
         student_id=student_id,
-        email=email,
         campus=campus,
         **kwargs,
     )
@@ -18,14 +16,12 @@ def create_user(username, student_id, email, password, campus, **kwargs):
     return user
 
 
-def authenticate_user(login_id, password):
-    """Authenticate a user by username or email. Returns User or None."""
-    user = User.query.filter(
-        or_(User.username == login_id, User.email == login_id)
-    ).first()
+def authenticate_user(username, password):
+    """Authenticate a user by username. Returns User or None."""
+    user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
         if not user.is_active:
-            return None  # Account disabled
+            return None
         return user
     return None
 
@@ -38,11 +34,6 @@ def get_user_by_id(user_id):
 def get_user_by_username(username):
     """Get a user by username. Returns User or None."""
     return User.query.filter_by(username=username).first()
-
-
-def get_user_by_email(email):
-    """Get a user by email. Returns User or None."""
-    return User.query.filter_by(email=email).first()
 
 
 def get_user_by_student_id(student_id):
@@ -61,7 +52,7 @@ def update_profile(user, **kwargs):
 
 
 def change_password(user, old_password, new_password):
-    """Change password for a user. Returns True on success, False on failure."""
+    """Change password for a user. Returns True on success, false on failure."""
     if not user.check_password(old_password):
         return False
     user.set_password(new_password)

@@ -18,8 +18,8 @@ class TestOrderRoutes:
             db.session.add(cat)
             db.session.commit()
             self.cat_id = cat.id
-            seller = create_user("rseller", "RO01", "rs@t.com", "Pass1234", "广州新港校区")
-            buyer = create_user("rbuyer", "RO02", "rb@t.com", "Pass1234", "广州琶洲校区")
+            seller = create_user("rseller", "RO01", "Pass1234", "广州新港校区")
+            buyer = create_user("rbuyer", "RO02", "Pass1234", "广州琶洲校区")
             self.seller_id = seller.id
             self.buyer_id = buyer.id
 

@@ -15,8 +15,8 @@ class TestMessageService:
     @pytest.fixture(autouse=True)
     def setup(self, app):
         with app.app_context():
-            self.sender = create_user("msender", "MS01", "msnd@t.com", "Pass1234", "广州新港校区")
-            self.receiver = create_user("mrecv", "MR01", "mrcv@t.com", "Pass1234", "广州琶洲校区")
+            self.sender = create_user("msender", "MS01", "Pass1234", "广州新港校区")
+            self.receiver = create_user("mrecv", "MR01", "Pass1234", "广州琶洲校区")
             self.sender_id = self.sender.id
             self.receiver_id = self.receiver.id
 
@@ -52,7 +52,7 @@ class TestMessageService:
         with app.app_context():
             send_message(self.sender_id, self.receiver_id, "对话1")
             # Create a third user for a second conversation
-            user3 = create_user("mthird", "MT01", "mt@t.com", "Pass1234", "广州新港校区")
+            user3 = create_user("mthird", "MT01", "Pass1234", "广州新港校区")
             send_message(user3.id, self.receiver_id, "对话2")
             convs = get_conversations(self.receiver_id)
             assert len(convs.items) >= 2

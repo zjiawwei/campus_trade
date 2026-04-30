@@ -11,7 +11,7 @@
 
             <div class="mb-3">
                 {{ form.login_id.label(class="form-label") }}
-                {{ form.login_id(class="form-control" + (" is-invalid" if form.login_id.errors else ""), placeholder="请输入用户名或邮箱") }}
+                {{ form.login_id(class="form-control" + (" is-invalid" if form.login_id.errors else ""), placeholder="请输入用户名") }}
                 {% for error in form.login_id.errors %}
                 <div class="invalid-feedback">{{ error }}</div>
                 {% endfor %}

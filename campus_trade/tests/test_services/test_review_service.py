@@ -21,8 +21,8 @@ class TestReviewService:
             db.session.add(cat)
             db.session.commit()
             self.cat_id = cat.id
-            seller = create_user("rvseller", "RV01", "rvs@t.com", "Pass1234", "广州新港校区")
-            buyer = create_user("rvbuyer", "RV02", "rvb@t.com", "Pass1234", "广州琶洲校区")
+            seller = create_user("rvseller", "RV01", "Pass1234", "广州新港校区")
+            buyer = create_user("rvbuyer", "RV02", "Pass1234", "广州琶洲校区")
             self.seller_id = seller.id
             self.buyer_id = buyer.id
 
@@ -85,8 +85,8 @@ class TestReviewRoutes:
             db.session.add(cat)
             db.session.commit()
             self.cat_id = cat.id
-            seller = create_user("rvseller2", "RV03", "rvs2@t.com", "Pass1234", "广州新港校区")
-            buyer = create_user("rvbuyer2", "RV04", "rvb2@t.com", "Pass1234", "广州琶洲校区")
+            seller = create_user("rvseller2", "RV03", "Pass1234", "广州新港校区")
+            buyer = create_user("rvbuyer2", "RV04", "Pass1234", "广州琶洲校区")
             self.seller_id = seller.id
             self.buyer_id = buyer.id
 

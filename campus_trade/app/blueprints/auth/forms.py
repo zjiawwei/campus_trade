@@ -8,7 +8,6 @@ from wtforms import (
 )
 from wtforms.validators import (
     DataRequired,
-    Email,
     Length,
     EqualTo,
     Regexp,
@@ -16,7 +15,6 @@ from wtforms.validators import (
 )
 from app.services.user_service import (
     get_user_by_username,
-    get_user_by_email,
     get_user_by_student_id,
 )
 
@@ -30,9 +28,9 @@ CAMPUS_CHOICES = [
 
 class LoginForm(FlaskForm):
     login_id = StringField(
-        "用户名 / 邮箱",
+        "用户名",
         validators=[
-            DataRequired(message="请输入用户名或邮箱"),
+            DataRequired(message="请输入用户名"),
             Length(max=128, message="输入过长"),
         ],
     )
@@ -64,14 +62,6 @@ class RegistrationForm(FlaskForm):
             DataRequired(message="请输入学号"),
             Length(min=3, max=20, message="学号长度需在 3-20 个字符之间"),
             Regexp(r"^[a-zA-Z0-9]+$", message="学号只能包含字母和数字"),
-        ],
-    )
-    email = StringField(
-        "邮箱",
-        validators=[
-            DataRequired(message="请输入邮箱"),
-            Email(message="请输入有效的邮箱地址"),
-            Length(max=128, message="邮箱地址过长"),
         ],
     )
     phone = StringField(
@@ -116,10 +106,6 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, field):
         if get_user_by_username(field.data):
             raise ValidationError("该用户名已被注册")
-
-    def validate_email(self, field):
-        if get_user_by_email(field.data):
-            raise ValidationError("该邮箱已被注册")
 
     def validate_student_id(self, field):
         if get_user_by_student_id(field.data):

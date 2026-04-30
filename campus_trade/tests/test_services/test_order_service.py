@@ -21,8 +21,8 @@ class TestOrderService:
             db.session.add(cat)
             db.session.commit()
             self.cat_id = cat.id
-            seller = create_user("oseller", "OS01", "os@t.com", "Pass1234", "广州新港校区")
-            buyer = create_user("obuyer", "OB01", "ob@t.com", "Pass1234", "广州琶洲校区")
+            seller = create_user("oseller", "OS01", "Pass1234", "广州新港校区")
+            buyer = create_user("obuyer", "OB01", "Pass1234", "广州琶洲校区")
             self.seller_id = seller.id
             self.buyer_id = buyer.id
 
@@ -47,7 +47,7 @@ class TestOrderService:
             p = create_product(self.seller_id, "已预定", "描述用于测试", 10.00, self.cat_id, "广州新港校区")
             create_order(self.buyer_id, p.id)
             # Second buyer tries
-            buyer2 = create_user("obuyer2", "OB02", "ob2@t.com", "Pass1234", "广州琶洲校区")
+            buyer2 = create_user("obuyer2", "OB02", "Pass1234", "广州琶洲校区")
             order, error = create_order(buyer2.id, p.id)
             assert order is None
             assert "不可购买" in error

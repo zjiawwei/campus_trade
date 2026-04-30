@@ -41,7 +41,6 @@ def logged_in_user(client, app):
         user = create_user(
             username="testuser",
             student_id="20240001",
-            email="test@campus.edu.cn",
             password="Test1234",
             campus="广州新港校区",
             real_name="测试用户",

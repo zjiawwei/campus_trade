@@ -19,10 +19,10 @@ class TestProductRoutes:
             db.session.commit()
             self.cat_id = cat.id
             seller = create_user(
-                "routeseller", "R001", "rs@test.edu.cn", "Pass1234", "广州新港校区"
+                "routeseller", "R001", "Pass1234", "广州新港校区"
             )
             buyer = create_user(
-                "routebuyer", "R002", "rb@test.edu.cn", "Pass1234", "广州琶洲校区"
+                "routebuyer", "R002", "Pass1234", "广州琶洲校区"
             )
             self.seller_id = seller.id
             self.buyer_id = buyer.id
