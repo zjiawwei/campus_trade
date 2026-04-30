@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}用户详情 - 后台管理 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> 返回列表
+    </a>
+    <h2 class="mb-0">用户详情</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-person-circle" style="font-size: 5rem; color: #6c757d;"></i>
+                <h4 class="mt-2">{{ user.username }}</h4>
+                <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'secondary' }}">
+                    {{ '管理员' if user.role == 'admin' else '普通用户' }}
+                </span>
+                <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                    {{ '正常' if user.is_active else '已禁用' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">基本信息</h5></div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr><td class="text-muted" style="width: 120px;">用户 ID</td><td>{{ user.id }}</td></tr>
+                    <tr><td class="text-muted">用户名</td><td>{{ user.username }}</td></tr>
+                    <tr><td class="text-muted">学号</td><td>{{ user.student_id }}</td></tr>
+                    <tr><td class="text-muted">邮箱</td><td>{{ user.email }}</td></tr>
+                    <tr><td class="text-muted">手机号</td><td>{{ user.phone or '未填写' }}</td></tr>
+                    <tr><td class="text-muted">真实姓名</td><td>{{ user.real_name or '未填写' }}</td></tr>
+                    <tr><td class="text-muted">校区</td><td>{{ user.campus }}</td></tr>
+                    <tr><td class="text-muted">信用分</td><td><span class="badge bg-success">{{ user.credit_score }}</span></td></tr>
+                    <tr><td class="text-muted">注册时间</td><td>{{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') if user.created_at else '' }}</td></tr>
+                    <tr><td class="text-muted">最后更新</td><td>{{ user.updated_at.strftime('%Y-%m-%d %H:%M:%S') if user.updated_at else '' }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            {% if user.id != current_user.id %}
+            <a href="{{ url_for('admin.toggle_active', user_id=user.id) }}"
+               class="btn btn-{{ 'warning' if user.is_active else 'success' }}">
+                <i class="bi bi-{{ 'lock' if user.is_active else 'unlock' }}"></i>
+                {{ '禁用账号' if user.is_active else '启用账号' }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

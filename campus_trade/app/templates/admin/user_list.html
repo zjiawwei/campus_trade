@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}后台管理 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0"><i class="bi bi-speedometer2"></i> 后台管理</h2>
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-house"></i> 返回前台
+    </a>
+</div>
+
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">{{ total_users }}</h5>
+                <p class="card-text mb-0">用户总数</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">{{ active_users }}</h5>
+                <p class="card-text mb-0">活跃用户</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">用户列表</h5>
+        <span class="badge bg-secondary">共 {{ users.total }} 条记录</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>学号</th>
+                    <th>邮箱</th>
+                    <th>校区</th>
+                    <th>角色</th>
+                    <th>状态</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.user_detail', user_id=user.id) }}">{{ user.username }}</a>
+                    </td>
+                    <td>{{ user.student_id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.campus }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'danger' if user.role == 'admin' else 'secondary' }}">
+                            {{ '管理员' if user.role == 'admin' else '用户' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                            {{ '正常' if user.is_active else '禁用' }}
+                        </span>
+                    </td>
+                    <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '' }}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}"
+                               class="btn btn-outline-primary" title="查看详情">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if user.id != current_user.id %}
+                            <a href="{{ url_for('admin.toggle_active', user_id=user.id) }}"
+                               class="btn btn-outline-{{ 'warning' if user.is_active else 'success' }}"
+                               title="{{ '禁用' if user.is_active else '启用' }}">
+                                <i class="bi bi-{{ 'lock' if user.is_active else 'unlock' }}"></i>
+                            </a>
+                            <button class="btn btn-outline-danger"
+                                    onclick="confirmDelete({{ user.id }}, '{{ user.username }}')"
+                                    title="删除">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">暂无用户数据</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if users.pages > 1 %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {{ 'disabled' if not users.has_prev }}">
+                    <a class="page-link" href="{{ url_for('admin.dashboard', page=users.prev_num) if users.has_prev else '#' }}">上一页</a>
+                </li>
+                {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                    <li class="page-item {{ 'active' if page_num == users.page }}">
+                        <a class="page-link" href="{{ url_for('admin.dashboard', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {{ 'disabled' if not users.has_next }}">
+                    <a class="page-link" href="{{ url_for('admin.dashboard', page=users.next_num) if users.has_next else '#' }}">下一页</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="deleteForm" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>确定要删除用户 <strong id="deleteUserName"></strong> 吗？此操作不可撤销，该用户的所有关联数据将被一并删除。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete(userId, username) {
+    document.getElementById('deleteUserName').textContent = username;
+    document.getElementById('deleteForm').action = '/admin/users/' + userId + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

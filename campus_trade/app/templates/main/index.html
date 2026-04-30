@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-4 mb-3">欢迎来到 {{ app_name }}</h1>
+    <p class="lead text-muted mb-4">
+        在这里，你可以轻松买卖校园二手物品<br>
+        从教材到电子产品，从生活用品到运动器材
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="#" class="btn btn-primary btn-lg">
+            <i class="bi bi-search"></i> 浏览商品
+        </a>
+        <a href="#" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-plus-circle"></i> 发布商品
+        </a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card border-0 text-center">
+            <div class="card-body">
+                <i class="bi bi-book text-primary" style="font-size: 3rem;"></i>
+                <h5 class="card-title mt-3">教材书籍</h5>
+                <p class="card-text text-muted">低价获取课程教材和参考书籍</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 text-center">
+            <div class="card-body">
+                <i class="bi bi-laptop text-primary" style="font-size: 3rem;"></i>
+                <h5 class="card-title mt-3">电子产品</h5>
+                <p class="card-text text-muted">手机、电脑、平板等数码产品</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 text-center">
+            <div class="card-body">
+                <i class="bi bi-basket text-primary" style="font-size: 3rem;"></i>
+                <h5 class="card-title mt-3">生活用品</h5>
+                <p class="card-text text-muted">宿舍必备好物，物美价廉</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
