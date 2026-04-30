@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }} - {{ app_name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('product.index') }}">商品列表</a></li>
+        <li class="breadcrumb-item active">{{ product.title }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Product Image -->
+    <div class="col-md-6">
+        <div class="card">
+            {% if product.cover_image %}
+            <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}"
+                 class="card-img-top" style="height: 400px; object-fit: contain;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                 style="height: 400px;">
+                <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+        </div>
+        {% if product.images.count() > 1 %}
+        <div class="d-flex gap-2 mt-2 overflow-auto">
+            {% for img in product.images.order_by(product.images[0].sort_order).all() %}
+            <img src="{{ url_for('static', filename='uploads/products/' + img.filename) }}"
+                 class="border {{ 'border-primary' if img.is_cover }}"
+                 style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Product Info -->
+    <div class="col-md-6">
+        <h3>{{ product.title }}</h3>
+        <div class="mb-2">
+            <span class="text-danger fw-bold fs-4">&yen;{{ "%.2f"|format(product.price) }}</span>
+            {% if product.original_price %}
+            <small class="text-muted text-decoration-line-through ms-2">
+                原价 &yen;{{ "%.2f"|format(product.original_price) }}
+            </small>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2 mb-3 flex-wrap">
+            <span class="badge bg-secondary">{{ {
+                'brand_new': '全新', 'like_new': '几乎全新',
+                'used': '使用过', 'defective': '有瑕疵'
+            }.get(product.condition, product.condition) }}</span>
+            <span class="badge bg-info">{{ product.campus }}</span>
+            <span class="badge bg-light text-dark">{{ product.category.name }}</span>
+            <span class="badge bg-light text-dark">{{ product.view_count }} 次浏览</span>
+        </div>
+
+        <hr>
+        <h5>商品描述</h5>
+        <p class="text-muted" style="white-space: pre-wrap;">{{ product.description }}</p>
+
+        <hr>
+        <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+                卖家：{{ product.seller.username }}
+                <span class="badge bg-success ms-1">信用 {{ product.seller.credit_score }}</span>
+            </small>
+            <small class="text-muted">
+                发布于 {{ product.created_at.strftime('%Y-%m-%d %H:%M') if product.created_at }}
+            </small>
+        </div>
+
+        <hr>
+
+        {% if current_user.is_authenticated %}
+            {% if current_user.id == product.seller_id %}
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('product.edit', product_id=product.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> 编辑
+                    </a>
+                    {% if product.status == 'active' %}
+                    <a href="{{ url_for('product.withdraw', product_id=product.id) }}" class="btn btn-outline-warning"
+                       onclick="return confirm('确定要下架该商品吗？')">
+                        <i class="bi bi-arrow-down-circle"></i> 下架
+                    </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="d-flex gap-2">
+                    <button id="favBtn" class="btn btn-outline-danger" data-product-id="{{ product.id }}">
+                        <i class="bi bi-heart"></i> <span id="favText">收藏</span>
+                        (<span id="favCount">0</span>)
+                    </button>
+                    <a href="{{ url_for('message.conversation', user_id=product.seller_id, product_id=product.id) }}" class="btn btn-primary">
+                        <i class="bi bi-chat-dots"></i> 联系卖家
+                    </a>
+                    <a href="{{ url_for('product.place_order', product_id=product.id) }}" class="btn btn-success">
+                        <i class="bi bi-bag"></i> 立即购买
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                    登录后购买
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">
+                    注册账号
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Favorite toggle
+const favBtn = document.getElementById('favBtn');
+if (favBtn) {
+    fetch('/products/{{ product.id }}/fav-status')
+        .then(r => r.json())
+        .then(data => {
+            updateFavBtn(data.is_favorited, data.count);
+        });
+
+    favBtn.addEventListener('click', () => {
+        fetch('/products/{{ product.id }}/toggle-fav', { method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token()|safe }}' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            updateFavBtn(data.is_favorited, data.count);
+        });
+    });
+}
+
+function updateFavBtn(isFav, count) {
+    const icon = favBtn.querySelector('.bi');
+    const text = favBtn.querySelector('#favText');
+    const cnt = favBtn.querySelector('#favCount');
+    if (isFav) {
+        icon.className = 'bi bi-heart-fill';
+        text.textContent = '已收藏';
+        favBtn.classList.remove('btn-outline-danger');
+        favBtn.classList.add('btn-danger');
+    } else {
+        icon.className = 'bi bi-heart';
+        text.textContent = '收藏';
+        favBtn.classList.remove('btn-danger');
+        favBtn.classList.add('btn-outline-danger');
+    }
+    cnt.textContent = count;
+}
+</script>
+{% endblock %}

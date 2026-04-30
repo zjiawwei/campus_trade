@@ -61,7 +61,7 @@ class Product(db.Model):
         return first_image.filename if first_image else None
 
     def __repr__(self):
-        return f"<Product {self.title}>"
+        return f"<Product id={self.id}>"
 
 
 class ProductImage(db.Model):
@@ -80,4 +80,4 @@ class ProductImage(db.Model):
     product = db.relationship("Product", back_populates="images")
 
     def __repr__(self):
-        return f"<ProductImage {self.filename}>"
+        return f"<ProductImage id={self.id}>"

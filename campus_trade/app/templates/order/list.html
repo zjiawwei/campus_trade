@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}我的订单 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">我的订单</h2>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if tab == 'bought' }}"
+           href="{{ url_for('order.my_orders', tab='bought') }}">我买到的</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ 'active' if tab == 'sold' }}"
+           href="{{ url_for('order.my_orders', tab='sold') }}">我卖出的</a>
+    </li>
+</ul>
+
+{% if orders.items %}
+<div class="list-group">
+    {% for order in orders.items %}
+    <a href="{{ url_for('order.detail', order_id=order.id) }}"
+       class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">{{ order.product.title }}</h6>
+                <small class="text-muted">
+                    {% if tab == 'sold' %}
+                    买家：{{ order.buyer.username }}
+                    {% else %}
+                    卖家：{{ order.seller.username }}
+                    {% endif %}
+                </small>
+            </div>
+            <div class="text-end">
+                <span class="fw-bold">&yen;{{ "%.2f"|format(order.amount) }}</span>
+                <br>
+                {% set status_map = {'pending': 'warning', 'confirmed': 'info', 'completed': 'success', 'cancelled': 'secondary'} %}
+                {% set status_text = {'pending': '待确认', 'confirmed': '已确认', 'completed': '已完成', 'cancelled': '已取消'} %}
+                <span class="badge bg-{{ status_map.get(order.status, 'secondary') }}">
+                    {{ status_text.get(order.status, order.status) }}
+                </span>
+                <br>
+                <small class="text-muted">{{ order.created_at.strftime('%m-%d %H:%M') if order.created_at }}</small>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if orders.pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if not orders.has_prev }}">
+            <a class="page-link" href="{{ url_for('order.my_orders', tab=tab, page=orders.prev_num) if orders.has_prev else '#' }}">上一页</a>
+        </li>
+        {% for p in orders.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            <li class="page-item {{ 'active' if p == orders.page }}">
+                <a class="page-link" href="{{ url_for('order.my_orders', tab=tab, page=p) }}">{{ p }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if not orders.has_next }}">
+            <a class="page-link" href="{{ url_for('order.my_orders', tab=tab, page=orders.next_num) if orders.has_next else '#' }}">下一页</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+    <p class="text-muted mt-3">暂无订单</p>
+    <a href="{{ url_for('product.index') }}" class="btn btn-primary">去逛逛</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -46,7 +46,7 @@ class Order(db.Model):
         return new_status in self.ALLOWED_TRANSITIONS.get(self.status, set())
 
     def __repr__(self):
-        return f"<Order {self.id}: {self.status}>"
+        return f"<Order id={self.id}>"
 
 
 class Review(db.Model):
@@ -66,4 +66,4 @@ class Review(db.Model):
     order = db.relationship("Order", back_populates="review")
 
     def __repr__(self):
-        return f"<Review {self.id}: {self.rating}/5>"
+        return f"<Review id={self.id}>"

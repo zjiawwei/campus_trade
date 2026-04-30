@@ -14,4 +14,4 @@ class Category(db.Model):
     products = db.relationship("Product", back_populates="category", lazy="dynamic")
 
     def __repr__(self):
-        return f"<Category {self.name}>"
+        return f"<Category id={self.id}>"

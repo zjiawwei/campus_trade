@@ -1,0 +1,17 @@
+/* Category card hover effect */
+.category-card {
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.category-card:hover {
+    background-color: #e7f1ff;
+    transform: translateY(-2px);
+}
+
+/* Product card hover */
+.product-card {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.product-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}

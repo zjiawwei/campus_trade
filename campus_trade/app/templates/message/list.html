@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}消息 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    消息
+    {% if unread_total %}
+    <span class="badge bg-danger ms-2">{{ unread_total }}</span>
+    {% endif %}
+</h2>
+
+{% if conversations.items %}
+<div class="list-group">
+    {% for msg in conversations.items %}
+    {% set other_user = msg.sender if msg.sender_id != current_user.id else msg.receiver %}
+    <a href="{{ url_for('message.conversation', user_id=other_user.id, product_id=msg.product_id) }}"
+       class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-circle text-muted" style="font-size: 1.5rem;"></i>
+                    <strong>{{ other_user.username }}</strong>
+                    {% if not msg.is_read and msg.receiver_id == current_user.id %}
+                    <span class="badge bg-danger">新</span>
+                    {% endif %}
+                </div>
+                <small class="text-muted">
+                    {{ msg.content[:50] }}{% if msg.content|length > 50 %}...{% endif %}
+                </small>
+            </div>
+            <small class="text-muted">{{ msg.created_at.strftime('%m-%d %H:%M') if msg.created_at }}</small>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+{% if conversations.pages > 1 %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {{ 'disabled' if not conversations.has_prev }}">
+            <a class="page-link" href="{{ url_for('message.list_conversations', page=conversations.prev_num) if conversations.has_prev else '#' }}">上一页</a>
+        </li>
+        {% for p in conversations.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            <li class="page-item {{ 'active' if p == conversations.page }}">
+                <a class="page-link" href="{{ url_for('message.list_conversations', page=p) }}">{{ p }}</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {{ 'disabled' if not conversations.has_next }}">
+            <a class="page-link" href="{{ url_for('message.list_conversations', page=conversations.next_num) if conversations.has_next else '#' }}">下一页</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-chat-dots text-muted" style="font-size: 4rem;"></i>
+    <p class="text-muted mt-3">暂无消息</p>
+</div>
+{% endif %}
+{% endblock %}

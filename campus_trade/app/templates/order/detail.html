@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}订单详情 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('order.my_orders') }}">我的订单</a></li>
+                <li class="breadcrumb-item active">订单 #{{ order.id }}</li>
+            </ol>
+        </nav>
+
+        <!-- Order Status -->
+        {% set status_map = {'pending': 'warning', 'confirmed': 'info', 'completed': 'success', 'cancelled': 'secondary'} %}
+        {% set status_text = {'pending': '待确认', 'confirmed': '已确认', 'completed': '已完成', 'cancelled': '已取消'} %}
+        <div class="card mb-4 border-{{ status_map.get(order.status) }}">
+            <div class="card-header bg-{{ status_map.get(order.status) }} text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-{{ 'clock' if order.status == 'pending' else 'check-circle' if order.status == 'completed' else 'info-circle' }}"></i>
+                    订单状态：{{ status_text.get(order.status, order.status) }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">订单编号</div>
+                    <div class="col-8">#{{ order.id }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">商品</div>
+                    <div class="col-8">
+                        <a href="{{ url_for('product.detail', product_id=order.product_id) }}">
+                            {{ order.product.title }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">金额</div>
+                    <div class="col-8 fw-bold text-danger">&yen;{{ "%.2f"|format(order.amount) }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">卖家</div>
+                    <div class="col-8">{{ order.seller.username }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">买家</div>
+                    <div class="col-8">{{ order.buyer.username }}</div>
+                </div>
+                {% if order.trade_location %}
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">交易地点</div>
+                    <div class="col-8">{{ order.trade_location }}</div>
+                </div>
+                {% endif %}
+                {% if order.buyer_message %}
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">买家留言</div>
+                    <div class="col-8">{{ order.buyer_message }}</div>
+                </div>
+                {% endif %}
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">下单时间</div>
+                    <div class="col-8">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') if order.created_at }}</div>
+                </div>
+                {% if order.updated_at and order.updated_at != order.created_at %}
+                <div class="row mb-2">
+                    <div class="col-4 text-muted">最后更新</div>
+                    <div class="col-8">{{ order.updated_at.strftime('%Y-%m-%d %H:%M:%S') if order.updated_at }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2">
+            {% if order.status == 'pending' %}
+                {% if current_user.id == order.seller_id %}
+                <a href="{{ url_for('order.confirm', order_id=order.id) }}"
+                   class="btn btn-success"
+                   onclick="return confirm('确认该订单？确认后买家将知晓交易已确认。')">
+                    <i class="bi bi-check-lg"></i> 确认订单
+                </a>
+                {% endif %}
+                {% if current_user.id in (order.buyer_id, order.seller_id) %}
+                <a href="{{ url_for('order.cancel', order_id=order.id) }}"
+                   class="btn btn-outline-danger"
+                   onclick="return confirm('确定要取消该订单吗？')">
+                    <i class="bi bi-x-lg"></i> 取消订单
+                </a>
+                {% endif %}
+
+            {% elif order.status == 'confirmed' %}
+                {% if current_user.id == order.seller_id %}
+                <a href="{{ url_for('order.complete', order_id=order.id) }}"
+                   class="btn btn-success"
+                   onclick="return confirm('确认交易已完成？这将标记商品为已售出。')">
+                    <i class="bi bi-check-all"></i> 完成交易
+                </a>
+                {% endif %}
+                <a href="{{ url_for('order.cancel', order_id=order.id) }}"
+                   class="btn btn-outline-danger"
+                   onclick="return confirm('确定要取消该订单吗？')">
+                    <i class="bi bi-x-lg"></i> 取消订单
+                </a>
+            {% elif order.status == 'completed' %}
+                <a href="{{ url_for('order.review', order_id=order.id) }}"
+                   class="btn btn-outline-warning">
+                    <i class="bi bi-star"></i> 评价
+                </a>
+            {% endif %}
+
+            <a href="{{ url_for('order.my_orders') }}" class="btn btn-secondary">返回列表</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

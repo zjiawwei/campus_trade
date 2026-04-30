@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}发布商品 - {{ app_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">发布商品</h2>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else ""), placeholder="简洁描述你的商品") }}
+                {% for error in form.title.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.category_id.label(class="form-label") }}
+                    {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else "")) }}
+                    {% for error in form.category_id.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.condition.label(class="form-label") }}
+                    {{ form.condition(class="form-select" + (" is-invalid" if form.condition.errors else "")) }}
+                    {% for error in form.condition.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {{ form.price.label(class="form-label") }}
+                    <div class="input-group">
+                        <span class="input-group-text">&yen;</span>
+                        {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), placeholder="0.00") }}
+                    </div>
+                    {% for error in form.price.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+                    {{ form.original_price.label(class="form-label") }}
+                    <div class="input-group">
+                        <span class="input-group-text">&yen;</span>
+                        {{ form.original_price(class="form-control" + (" is-invalid" if form.original_price.errors else ""), placeholder="选填") }}
+                    </div>
+                    {% for error in form.original_price.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                {{ form.campus.label(class="form-label") }}
+                {{ form.campus(class="form-select" + (" is-invalid" if form.campus.errors else "")) }}
+                {% for error in form.campus.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="6", placeholder="详细描述商品的使用情况、购买时间、配件等信息...") }}
+                {% for error in form.description.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex gap-2">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('product.index') }}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -10,42 +10,75 @@
         从教材到电子产品，从生活用品到运动器材
     </p>
     <div class="d-flex justify-content-center gap-3">
-        <a href="#" class="btn btn-primary btn-lg">
+        <a href="{{ url_for('product.index') }}" class="btn btn-primary btn-lg">
             <i class="bi bi-search"></i> 浏览商品
         </a>
-        <a href="#" class="btn btn-outline-primary btn-lg">
+        <a href="{{ url_for('product.create') }}" class="btn btn-outline-primary btn-lg">
             <i class="bi bi-plus-circle"></i> 发布商品
         </a>
     </div>
 </div>
 
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card border-0 text-center">
-            <div class="card-body">
-                <i class="bi bi-book text-primary" style="font-size: 3rem;"></i>
-                <h5 class="card-title mt-3">教材书籍</h5>
-                <p class="card-text text-muted">低价获取课程教材和参考书籍</p>
-            </div>
+<!-- Category Cards -->
+{% if categories %}
+<div class="mt-5">
+    <h3 class="text-center mb-4">商品分类</h3>
+    <div class="row g-3">
+        {% for cat in categories %}
+        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+            <a href="{{ url_for('product.index', category=cat.id) }}"
+               class="card border-0 text-center text-decoration-none h-100 category-card">
+                <div class="card-body py-3">
+                    <i class="bi {{ cat.icon or 'bi-grid' }} text-primary" style="font-size: 2.5rem;"></i>
+                    <h6 class="card-title mt-2 mb-1 text-dark">{{ cat.name }}</h6>
+                    {% if cat.description %}
+                    <small class="text-muted">{{ cat.description }}</small>
+                    {% endif %}
+                </div>
+            </a>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 text-center">
-            <div class="card-body">
-                <i class="bi bi-laptop text-primary" style="font-size: 3rem;"></i>
-                <h5 class="card-title mt-3">电子产品</h5>
-                <p class="card-text text-muted">手机、电脑、平板等数码产品</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 text-center">
-            <div class="card-body">
-                <i class="bi bi-basket text-primary" style="font-size: 3rem;"></i>
-                <h5 class="card-title mt-3">生活用品</h5>
-                <p class="card-text text-muted">宿舍必备好物，物美价廉</p>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
+{% endif %}
+
+<!-- Latest Products -->
+{% if latest_products %}
+<div class="mt-5">
+    <h3 class="mb-4">
+        最新发布
+        <a href="{{ url_for('product.index') }}" class="btn btn-link btn-sm">查看更多</a>
+    </h3>
+    <div class="row g-3">
+        {% for product in latest_products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100 product-card">
+                {% if product.cover_image %}
+                <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}"
+                     class="card-img-top" style="height: 160px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                     style="height: 160px;">
+                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title text-truncate">{{ product.title }}</h6>
+                    <p class="card-text">
+                        <span class="text-danger fw-bold fs-5">&yen;{{ "%.2f"|format(product.price) }}</span>
+                        {% if product.original_price %}
+                        <small class="text-muted text-decoration-line-through ms-1">
+                            &yen;{{ "%.2f"|format(product.original_price) }}
+                        </small>
+                        {% endif %}
+                    </p>
+                    <small class="text-muted">{{ product.campus }}</small>
+                </div>
+                <a href="{{ url_for('product.detail', product_id=product.id) }}" class="stretched-link"></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 {% endblock %}

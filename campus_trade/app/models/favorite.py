@@ -22,4 +22,4 @@ class Favorite(db.Model):
     )
 
     def __repr__(self):
-        return f"<Favorite user={self.user_id} product={self.product_id}>"
+        return f"<Favorite id={self.id}>"
