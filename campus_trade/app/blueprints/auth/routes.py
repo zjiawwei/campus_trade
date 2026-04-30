@@ -39,7 +39,7 @@ def login():
             next_page = request.args.get("next")
             flash("登录成功！", "success")
             return redirect(next_page or url_for("main.index"))
-        flash("用户名/邮箱或密码错误，请重试。", "danger")
+        flash("用户名或密码错误，请重试。", "danger")
 
     return render_template("auth/login.html", form=form)
 

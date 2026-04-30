@@ -45,18 +45,28 @@ def create_app(config_name=None):
     @click.argument("password")
     @click.argument("campus")
     def create_admin(username, student_id, password, campus):
-        """Create an admin user: flask create-admin <username> <student_id> <password> <campus>"""
+        """Create or update an admin user: flask create-admin <username> <student_id> <password> <campus>"""
         from app.models.user import User
-        user = User(
-            username=username,
-            student_id=student_id,
-            campus=campus,
-            role="admin",
-        )
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        print(f"Admin user '{username}' created successfully.")
+        user = User.query.filter_by(username=username).first()
+        if user:
+            user.student_id = student_id
+            user.campus = campus
+            user.role = "admin"
+            user.is_active = True
+            user.set_password(password)
+            db.session.commit()
+            print(f"Admin user '{username}' updated.")
+        else:
+            user = User(
+                username=username,
+                student_id=student_id,
+                campus=campus,
+                role="admin",
+            )
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            print(f"Admin user '{username}' created.")
 
     @app.cli.command("seed-categories")
     def seed_categories():
